@@ -21,6 +21,7 @@ services:
   apple2:
     image: server
     environment:
+    
       - APP=apple
     ports:
       - "9082:5000"

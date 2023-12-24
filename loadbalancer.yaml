@@ -7,6 +7,11 @@ hosts:
     servers:
       - localhost:9081
       - localhost:9082
+      - localhost:8888 # bad server
+  - host: www.orange.com # bad host
+    servers:
+      - localhost:1111 # bad server
+      - localhost:2222 # bad server
 paths:
   - path: /mango
     servers:
@@ -16,3 +21,9 @@ paths:
     servers:
       - localhost:9081
       - localhost:9082
+      - localhost:8888 # bad server
+  - path: /orange
+    servers:
+      - localhost:1111
+      - localhost:2222 # bad server
+
