@@ -1,7 +1,7 @@
 import yaml
 
 from models import Server
-from utils import (get_healthy_server, healthcheck,
+from utils import (get_healthy_server, healthcheck, process_rules,
                    transform_backends_from_config)
 
 
@@ -77,3 +77,69 @@ def test_healthcheck():
     assert not register["www.apple.com"][1].healthy
     assert register["www.mango.com"][0].healthy
     assert not register["www.mango.com"][1].healthy
+
+
+def test_process_header_rules():
+    input = yaml.safe_load(
+        """
+        hosts:
+          - host: www.mango.com
+            header_rules:
+              add:
+                MyCustomHeader: Test
+              remove:
+                Host: www.mango.com
+            servers:
+              - localhost:8081
+              - localhost:8082
+          - host: www.apple.com
+            servers:
+              - localhost:9081
+              - localhost:9082
+        paths:
+          - path: /mango
+            servers:
+              - localhost:8081
+              - localhost:8082
+          - path: /apple
+            servers:
+              - localhost:9081
+              - localhost:9082
+    """
+    )
+    headers = {"Host": "www.mango.com"}
+    results = process_rules(input, "www.mango.com", headers, "header")
+    assert results == {"MyCustomHeader": "Test"}
+
+
+def test_process_param_rules():
+    input = yaml.safe_load(
+        """
+        hosts:
+          - host: www.mango.com
+            param_rules:
+              add:
+                MyCustomParam: Test
+              remove:
+                RemoveMe: Remove
+            servers:
+              - localhost:8081
+              - localhost:8082
+          - host: www.apple.com
+            servers:
+              - localhost:9081
+              - localhost:9082
+        paths:
+          - path: /mango
+            servers:
+              - localhost:8081
+              - localhost:8082
+          - path: /apple
+            servers:
+              - localhost:9081
+              - localhost:9082
+    """
+    )
+    params = {"RemoveMe": "Remove"}
+    results = process_rules(input, "www.mango.com", params, "param")
+    assert results == {"MyCustomParam": "Test"}

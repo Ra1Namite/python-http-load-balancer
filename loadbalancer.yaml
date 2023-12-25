@@ -1,17 +1,30 @@
 hosts:
   - host: www.mango.com
+    header_rules:
+      add:
+        MyCustomHeader: Test
+      remove:
+        Host: www.mango.com
+    param_rules:
+      add:
+        MyCustomParam: Test
+      remove:
+        RemoveMe: Remove
     servers:
       - localhost:8081
       - localhost:8082
   - host: www.apple.com
+    header_rules:
+      remove:
+        Host: www.apple.com
     servers:
       - localhost:9081
       - localhost:9082
-      - localhost:8888 # bad server
-  - host: www.orange.com # bad host
+      - localhost:8888
+  - host: www.orange.com
     servers:
-      - localhost:1111 # bad server
-      - localhost:2222 # bad server
+      - localhost:1111
+      - localhost:1212
 paths:
   - path: /mango
     servers:
@@ -21,9 +34,8 @@ paths:
     servers:
       - localhost:9081
       - localhost:9082
-      - localhost:8888 # bad server
+      - localhost:8888
   - path: /orange
     servers:
       - localhost:1111
-      - localhost:2222 # bad server
-
+      - localhost:1212
