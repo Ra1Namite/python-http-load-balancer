@@ -1,4 +1,3 @@
-
 import requests
 from flask import Flask, request
 
@@ -11,7 +10,7 @@ config = load_configuration("loadbalancer.yaml")
 register = transform_backends_from_config(config)
 
 
-@loadbalancer.route("/")
+@loadbalancer.route("/", methods=["GET", "POST"])
 @loadbalancer.route("/<path>")
 def router(path="/"):
     updated_register = healthcheck(register)
@@ -31,10 +30,25 @@ def router(path="/"):
                 config, host_header, {k: v for k, v in request.args.items()}, "param"
             )
 
-            response = requests.get(
-                f"http://{healthy_server.endpoint}", headers=headers, params=params
-            )
-            return response.content, response.status_code
+            if request.method == "GET":
+                response = requests.get(
+                    f"http://{healthy_server.endpoint}", headers=headers, params=params
+                )
+                return response.content, response.status_code
+            if request.method == "POST":
+                json_body = process_rules(
+                    config,
+                    host_header,
+                    request.get_json(force=True),
+                    "json_data",
+                )
+                response = requests.post(
+                    f"http://{healthy_server.endpoint}",
+                    headers=headers,
+                    params=params,
+                    json=json_body,
+                )
+                return response.content, response.status_code
     for entry in config["paths"]:
         if ("/" + path) == entry["path"]:
             healthy_server = get_healthy_server(entry["path"], updated_register)

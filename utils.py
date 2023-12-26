@@ -39,7 +39,11 @@ def healthcheck(register):
 
 
 def process_rules(config, host, rules, modify):
-    modify_options = {"header": "header_rules", "param": "param_rules"}
+    modify_options = {
+        "header": "header_rules",
+        "param": "param_rules",
+        "json_data": "json_data_rules",
+    }
 
     for entry in config.get("hosts", []):
         if host == entry["host"]:

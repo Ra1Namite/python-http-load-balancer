@@ -10,6 +10,11 @@ hosts:
         MyCustomParam: Test
       remove:
         RemoveMe: Remove
+    json_data_rules:
+      add:
+        MyCustomParam: Test
+      remove:
+        RemoveMe: Remove
     servers:
       - localhost:8081
       - localhost:8082

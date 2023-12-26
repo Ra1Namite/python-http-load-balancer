@@ -143,3 +143,36 @@ def test_process_param_rules():
     params = {"RemoveMe": "Remove"}
     results = process_rules(input, "www.mango.com", params, "param")
     assert results == {"MyCustomParam": "Test"}
+
+
+def test_process_data_rules():
+    input = yaml.safe_load(
+        """
+        hosts:
+          - host: www.mango.com
+            json_data_rules:
+              add:
+                MyCustomParam: Test
+              remove:
+                RemoveMe: Remove
+            servers:
+              - localhost:8081
+              - localhost:8082
+          - host: www.apple.com
+            servers:
+              - localhost:9081
+              - localhost:9082
+        paths:
+          - path: /mango
+            servers:
+              - localhost:8081
+              - localhost:8082
+          - path: /apple
+            servers:
+              - localhost:9081
+              - localhost:9082
+    """
+    )
+    data = {"RemoveMe": "Remove"}
+    results = process_rules(input, "www.mango.com", data, "json_data")
+    assert results == {"MyCustomParam": "Test"}
