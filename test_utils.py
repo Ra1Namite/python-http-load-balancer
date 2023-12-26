@@ -176,3 +176,34 @@ def test_process_data_rules():
     data = {"RemoveMe": "Remove"}
     results = process_rules(input, "www.mango.com", data, "json_data")
     assert results == {"MyCustomParam": "Test"}
+
+
+def test_process_cookie_rules():
+    input = yaml.safe_load(
+        """
+        hosts:
+          - host: www.mango.com
+            cookie_rules:
+              add:
+                MyCustomCookie: Test
+            servers:
+              - localhost:8081
+              - localhost:8082
+          - host: www.apple.com
+            servers:
+              - localhost:9081
+              - localhost:9082
+        paths:
+          - path: /mango
+            servers:
+              - localhost:8081
+              - localhost:8082
+          - path: /apple
+            servers:
+              - localhost:9081
+              - localhost:9082
+    """
+    )
+    data = {"session": 1234}
+    results = process_rules(input, "www.mango.com", data, "cookie")
+    assert results == {"MyCustomCookie": "Test", "session": 1234}

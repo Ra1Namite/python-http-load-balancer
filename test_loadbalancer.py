@@ -23,6 +23,7 @@ def test_host_routing_mango(client):
     assert data["server"] in ["http://localhost:8082/", "http://localhost:8081/"]
     assert data["query_strings"] == "MyCustomParam=Test"
     assert data["custom_params"] == "Test"
+    assert data["cookies"] == {"MyCustomCookie": "Test"}
 
 
 def test_post_host_routing_mango(client):
@@ -40,15 +41,20 @@ def test_post_host_routing_mango(client):
     assert data["query_strings"] == "MyCustomParam=Test"
     assert data["custom_params"] == "Test"
     assert data["json_data"] == {"MyCustomParam": "Test"}
+    assert data["cookies"] == {"MyCustomCookie": "Test"}
 
 
 def test_host_routing_apple(client):
-    result = client.get("/", headers={"Host": "www.apple.com"})
+    result = client.get(
+        "/",
+        headers={"Host": "www.apple.com"},
+    )
     data = json.loads(result.data.decode())
     assert "This is the apple application." in data["message"]
     assert data["server"] in ["http://localhost:9082/", "http://localhost:9081/"]
     assert not data["custom_header"]
     assert data["host_header"] in ["localhost:9082", "localhost:9081"]
+    assert data["cookies"] is None
 
 
 def test_host_routing_orange(client):
@@ -63,7 +69,9 @@ def test_host_routing_notfound(client):
 
 
 def test_path_routing_mango(client):
-    result = client.get("/mango")
+    result = client.get(
+        "/mango",
+    )
     data = json.loads(result.data.decode())
     assert "This is the mango application." in data["message"]
     assert data["server"] in ["http://localhost:8082/", "http://localhost:8081/"]
@@ -72,7 +80,9 @@ def test_path_routing_mango(client):
 
 
 def test_path_routing_apple(client):
-    result = client.get("/apple")
+    result = client.get(
+        "/apple",
+    )
     data = json.loads(result.data.decode())
     assert "This is the apple application." in data["message"]
     assert data["server"] in ["http://localhost:9082/", "http://localhost:9081/"]

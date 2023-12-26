@@ -43,6 +43,7 @@ def process_rules(config, host, rules, modify):
         "header": "header_rules",
         "param": "param_rules",
         "json_data": "json_data_rules",
+        "cookie": "cookie_rules",
     }
 
     for entry in config.get("hosts", []):

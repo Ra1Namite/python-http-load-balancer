@@ -15,6 +15,7 @@ def sample():
             host_header=request.headers.get("Host", request.base_url),
             custom_params=request.args.get("MyCustomParam", None),
             query_strings=request.query_string.decode("utf-8"),
+            cookies=request.cookies if request.cookies else None,
         )
     else:
         return jsonify(
@@ -24,7 +25,8 @@ def sample():
             host_header=request.headers.get("Host", request.base_url),
             custom_params=request.args.get("MyCustomParam", None),
             query_strings=request.query_string.decode("utf-8"),
-            json_data=request.json,
+            json_data=request.json if request.json else None,
+            cookies=request.cookies if request.cookies else None,
         )
 
 

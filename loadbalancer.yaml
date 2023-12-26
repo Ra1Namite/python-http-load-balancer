@@ -10,6 +10,9 @@ hosts:
         MyCustomParam: Test
       remove:
         RemoveMe: Remove
+    cookie_rules:
+      add:
+        MyCustomCookie: Test
     json_data_rules:
       add:
         MyCustomParam: Test

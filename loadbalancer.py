@@ -29,10 +29,19 @@ def router(path="/"):
             params = process_rules(
                 config, host_header, {k: v for k, v in request.args.items()}, "param"
             )
+            cookies = process_rules(
+                config,
+                host_header,
+                {k: v for k, v in request.cookies.items()},
+                "cookie",
+            )
 
             if request.method == "GET":
                 response = requests.get(
-                    f"http://{healthy_server.endpoint}", headers=headers, params=params
+                    f"http://{healthy_server.endpoint}",
+                    headers=headers,
+                    params=params,
+                    cookies=cookies,
                 )
                 return response.content, response.status_code
             if request.method == "POST":
@@ -47,6 +56,7 @@ def router(path="/"):
                     headers=headers,
                     params=params,
                     json=json_body,
+                    cookies=cookies,
                 )
                 return response.content, response.status_code
     for entry in config["paths"]:
