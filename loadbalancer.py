@@ -2,7 +2,8 @@ import requests
 from flask import Flask, request
 
 from utils import (get_healthy_server, healthcheck, load_configuration,
-                   process_rules, transform_backends_from_config)
+                   process_rewrite_rules, process_rules,
+                   transform_backends_from_config)
 
 loadbalancer = Flask(__name__)
 
@@ -35,10 +36,13 @@ def router(path="/"):
                 {k: v for k, v in request.cookies.items()},
                 "cookie",
             )
+            rewrite_path = ""
+            if path == "v1":
+                rewrite_path = process_rewrite_rules(config, host_header, path)
 
             if request.method == "GET":
                 response = requests.get(
-                    f"http://{healthy_server.endpoint}",
+                    f"http://{healthy_server.endpoint}/{rewrite_path}",
                     headers=headers,
                     params=params,
                     cookies=cookies,
