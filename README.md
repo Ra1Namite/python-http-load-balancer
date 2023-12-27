@@ -56,9 +56,9 @@ Start the load balancer server
 Make http request to loadbalancer
 
 ```bash
-    curl -X POST -H 'Host: www.mango.com' -H "Accept: application/json" -H 'Content-Type: application/json' 127.0.0.1:5000 
+   curl -X POST -H 'Host: www.mango.com' -H "Accept: application/json" 
+   -H 'Content-Type: application/json' 127.0.0.1:5000 
     -d '{"productId":123456, "RemoveMe": "Remove"}'
-
 ```
 
 
