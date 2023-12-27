@@ -41,12 +41,15 @@ def router(path="/"):
                 rewrite_path = process_rewrite_rules(config, host_header, path)
 
             if request.method == "GET":
+                healthy_server.open_connections += 1
                 response = requests.get(
                     f"http://{healthy_server.endpoint}/{rewrite_path}",
                     headers=headers,
                     params=params,
                     cookies=cookies,
                 )
+                healthy_server.open_connections -= 1
+
                 return response.content, response.status_code
             if request.method == "POST":
                 json_body = process_rules(
@@ -55,6 +58,7 @@ def router(path="/"):
                     request.get_json(force=True),
                     "json_data",
                 )
+                healthy_server.open_connections += 1
                 response = requests.post(
                     f"http://{healthy_server.endpoint}",
                     headers=headers,
@@ -62,14 +66,17 @@ def router(path="/"):
                     json=json_body,
                     cookies=cookies,
                 )
+                healthy_server.open_connections -= 1
                 return response.content, response.status_code
     for entry in config["paths"]:
         if ("/" + path) == entry["path"]:
             healthy_server = get_healthy_server(entry["path"], updated_register)
             if not healthy_server:
                 return "No backend servers available.", 503
+            healthy_server.open_connections += 1
 
             response = requests.get(f"http://{healthy_server.endpoint}")
+            healthy_server.open_connections -= 1
             return response.content, response.status_code
 
     return "Not Found", 404

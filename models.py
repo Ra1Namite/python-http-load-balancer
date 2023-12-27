@@ -8,6 +8,7 @@ class Server:
         self.healthy = True
         self.timeout = 1
         self.scheme = "http://"
+        self.open_connections = 0
 
     def healthcheck_and_update_status(self):
         try:
