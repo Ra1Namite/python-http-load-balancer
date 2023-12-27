@@ -43,16 +43,22 @@ def process_rules(config, host, rules, modify):
         "cookie": "cookie_rules",
     }
 
+    matched_entry = None
     for entry in config.get("hosts", []):
         if host == entry["host"]:
-            header_rules = entry.get(modify_options[modify], {})
-            for instruction, modify_headers in header_rules.items():
-                if instruction == "add":
-                    rules.update(modify_headers)
-                if instruction == "remove":
-                    for key in modify_headers.keys():
-                        if key in rules:
-                            rules.pop(key)
+            matched_entry = entry
+            break
+    if matched_entry is None:
+        return rules
+    header_rules = matched_entry.get(modify_options[modify], {})
+    for instruction, modify_headers in header_rules.items():
+        if instruction == "add":
+            rules.update(modify_headers)
+        if instruction == "remove":
+            for key in modify_headers.keys():
+                if key in rules:
+                    rules.pop(key)
+
     return rules
 
 
