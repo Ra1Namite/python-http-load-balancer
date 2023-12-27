@@ -1,13 +1,13 @@
 import requests
 from flask import Flask, request
 
-from .utils import (get_healthy_server, healthcheck, load_configuration,
-                    process_firewall_rules_flag, process_multiple_rules,
-                    process_rewrite_rules, transform_backends_from_config)
+from src.utils import (get_healthy_server, healthcheck, load_configuration,
+                       process_firewall_rules_flag, process_multiple_rules,
+                       process_rewrite_rules, transform_backends_from_config)
 
 loadbalancer = Flask(__name__)
 
-config = load_configuration("load_balancer/loadbalancer.yaml")
+config = load_configuration("src/loadbalancer.yaml")
 register = transform_backends_from_config(config)
 
 
@@ -73,3 +73,7 @@ def router(path="/"):
             return response.content, response.status_code
 
     return "Not Found", 404
+
+
+if __name__ == "__main__":
+    loadbalancer.run(host="0.0.0.0")

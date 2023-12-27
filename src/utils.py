@@ -1,6 +1,6 @@
 import yaml
 
-from .models import Server
+from src.models import Server
 
 
 def load_configuration(path):
@@ -34,6 +34,9 @@ def healthcheck(register):
 
 
 def process_rules(config, host, rules, modify):
+    """
+    manipulate headers, query parameters, post data, cookies
+    """
     modify_options = {
         "header": "header_rules",
         "param": "param_rules",
@@ -61,6 +64,9 @@ def process_rules(config, host, rules, modify):
 
 
 def process_multiple_rules(config, host, headers, param_args, cookies, json_body=None):
+    """
+    process multiple fields at same time
+    """
     headers = process_rules(config, host, {k: v for k, v in headers.items()}, "header")
     params = process_rules(config, host, {k: v for k, v in param_args.items()}, "param")
     cookies = process_rules(config, host, {k: v for k, v in cookies.items()}, "cookie")
@@ -75,6 +81,9 @@ def process_multiple_rules(config, host, headers, param_args, cookies, json_body
 
 
 def process_rewrite_rules(config, host, path):
+    """
+    manipulate urls
+    """
     for entry in config.get("hosts", []):
         if host == entry["host"]:
             rewrite_rules = entry.get("rewrite_rules", {})
@@ -83,12 +92,18 @@ def process_rewrite_rules(config, host, path):
 
 
 def least_connections(servers):
+    """
+    least connection load balancing algorithm
+    """
     if not servers:
         return None
     return min(servers, key=lambda x: x.open_connections)
 
 
 def process_firewall_rules_flag(config, host, client_ip=None, path=None):
+    """
+    process firewall rules
+    """
     for entry in config.get("hosts", []):
         if host == entry["host"]:
             firewall_rules = entry.get("firewall_rules", {})

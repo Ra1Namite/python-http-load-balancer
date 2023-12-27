@@ -1,7 +1,7 @@
 import pytest
 from flask import json
 
-from load_balancer.loadbalancer import loadbalancer
+from src.loadbalancer import loadbalancer
 
 
 @pytest.fixture

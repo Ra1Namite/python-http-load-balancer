@@ -1,3 +1,7 @@
+"""
+
+Demo flask app for testing our Loadbalancer, loadbalancer will route requests to multiple backend servers running this app
+"""
 import os
 
 from flask import Flask, jsonify, request

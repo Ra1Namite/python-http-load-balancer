@@ -1,11 +1,9 @@
 import yaml
 
-from load_balancer.models import Server
-from load_balancer.utils import (get_healthy_server, healthcheck,
-                                 least_connections,
-                                 process_firewall_rules_flag,
-                                 process_rewrite_rules, process_rules,
-                                 transform_backends_from_config)
+from src.models import Server
+from src.utils import (get_healthy_server, healthcheck, least_connections,
+                       process_firewall_rules_flag, process_rewrite_rules,
+                       process_rules, transform_backends_from_config)
 
 
 def test_transform_backends_from_config():

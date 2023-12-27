@@ -2,6 +2,10 @@ import requests
 
 
 class Server:
+    """
+    Class to represent our backend servers.
+    """
+
     def __init__(self, endpoint, path="/healthcheck") -> None:
         self.endpoint = endpoint
         self.path = path
@@ -11,6 +15,7 @@ class Server:
         self.open_connections = 0
 
     def healthcheck_and_update_status(self):
+        # check health of server and update status
         try:
             response = requests.get(
                 self.scheme + self.endpoint + self.path, timeout=self.timeout

@@ -1,5 +1,8 @@
 FROM python:3
-RUN pip install flask pyyaml
-COPY ./demo_app/app.py /app/app.py
-CMD ["python", "/app/app.py"]
+WORKDIR /src/
+COPY ./src/* .
+COPY ./requirements.txt ./requirements.txt
+RUN python -m pip install -r ./requirements.txt
+EXPOSE 5000
+CMD ["python", "loadbalancer.py"]
 
