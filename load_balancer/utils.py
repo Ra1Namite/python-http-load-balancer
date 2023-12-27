@@ -2,7 +2,7 @@ import random
 
 import yaml
 
-from models import Server
+from .models import Server
 
 
 def load_configuration(path):

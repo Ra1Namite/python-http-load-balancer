@@ -1,13 +1,13 @@
 import requests
 from flask import Flask, request
 
-from utils import (get_healthy_server, healthcheck, load_configuration,
-                   process_firewall_rules_flag, process_rewrite_rules,
-                   process_rules, transform_backends_from_config)
+from .utils import (get_healthy_server, healthcheck, load_configuration,
+                    process_firewall_rules_flag, process_rewrite_rules,
+                    process_rules, transform_backends_from_config)
 
 loadbalancer = Flask(__name__)
 
-config = load_configuration("loadbalancer.yaml")
+config = load_configuration("load_balancer/loadbalancer.yaml")
 register = transform_backends_from_config(config)
 
 
