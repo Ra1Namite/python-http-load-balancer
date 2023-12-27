@@ -2,8 +2,8 @@ import yaml
 
 from models import Server
 from utils import (get_healthy_server, healthcheck, least_connections,
-                   process_rewrite_rules, process_rules,
-                   transform_backends_from_config)
+                   process_firewall_rules_flag, process_rewrite_rules,
+                   process_rules, transform_backends_from_config)
 
 
 def test_transform_backends_from_config():
@@ -256,3 +256,127 @@ def test_least_connections():
     servers = [backend1, backend2, backend3]
     result = least_connections(servers)
     assert result == backend3
+
+
+def test_process_firewall_rules_reject():
+    input = yaml.safe_load(
+        """
+        hosts:
+          - host: www.mango.com
+            firewall_rules:
+              ip_reject:
+                - 10.192.0.1
+                - 10.192.0.2
+            servers:
+              - localhost:8081
+              - localhost:8082
+          - host: www.apple.com
+            servers:
+              - localhost:9081
+              - localhost:9082
+        paths:
+          - path: /mango
+            servers:
+              - localhost:8081
+              - localhost:8082
+          - path: /apple
+            servers:
+              - localhost:9081
+              - localhost:9082
+    """
+    )
+    results = process_firewall_rules_flag(input, "www.mango.com", "10.192.0.1")
+    assert not results
+
+
+def test_process_firewall_rules_accept():
+    input = yaml.safe_load(
+        """
+        hosts:
+          - host: www.mango.com
+            firewall_rules:
+              ip_reject:
+                - 10.192.0.1
+                - 10.192.0.2
+            servers:
+              - localhost:8081
+              - localhost:8082
+          - host: www.apple.com
+            servers:
+              - localhost:9081
+              - localhost:9082
+        paths:
+          - path: /mango
+            servers:
+              - localhost:8081
+              - localhost:8082
+          - path: /apple
+            servers:
+              - localhost:9081
+              - localhost:9082
+    """
+    )
+    results = process_firewall_rules_flag(input, "www.mango.com", "55.55.55.55")
+    assert results
+
+
+def test_process_firewall_rules_path_reject():
+    input = yaml.safe_load(
+        """
+        hosts:
+          - host: www.mango.com
+            firewall_rules:
+              path_reject:
+                - /messages
+                - /apps
+            servers:
+              - localhost:8081
+              - localhost:8082
+          - host: www.apple.com
+            servers:
+              - localhost:9081
+              - localhost:9082
+        paths:
+          - path: /mango
+            servers:
+              - localhost:8081
+              - localhost:8082
+          - path: /apple
+            servers:
+              - localhost:9081
+              - localhost:9082
+    """
+    )
+    results = process_firewall_rules_flag(input, "www.mango.com", path="/apps")
+    assert results is False
+
+
+def test_process_firewall_rules_path_accept():
+    input = yaml.safe_load(
+        """
+        hosts:
+          - host: www.mango.com
+            firewall_rules:
+              path_reject:
+                - /messages
+                - /apps
+            servers:
+              - localhost:8081
+              - localhost:8082
+          - host: www.apple.com
+            servers:
+              - localhost:9081
+              - localhost:9082
+        paths:
+          - path: /mango
+            servers:
+              - localhost:8081
+              - localhost:8082
+          - path: /apple
+            servers:
+              - localhost:9081
+              - localhost:9082
+    """
+    )
+    results = process_firewall_rules_flag(input, "www.mango.com", path="/pictures")
+    assert results is True

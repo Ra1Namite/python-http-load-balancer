@@ -68,3 +68,14 @@ def least_connections(servers):
     if not servers:
         return None
     return min(servers, key=lambda x: x.open_connections)
+
+
+def process_firewall_rules_flag(config, host, client_ip=None, path=None):
+    for entry in config.get("hosts", []):
+        if host == entry["host"]:
+            firewall_rules = entry.get("firewall_rules", {})
+            if client_ip in firewall_rules.get("ip_reject", []):
+                return False
+            if path in firewall_rules.get("path_reject", []):
+                return False
+    return True
