@@ -1,5 +1,3 @@
-import random
-
 import yaml
 
 from .models import Server
@@ -60,6 +58,20 @@ def process_rules(config, host, rules, modify):
                     rules.pop(key)
 
     return rules
+
+
+def process_multiple_rules(config, host, headers, param_args, cookies, json_body=None):
+    headers = process_rules(config, host, {k: v for k, v in headers.items()}, "header")
+    params = process_rules(config, host, {k: v for k, v in param_args.items()}, "param")
+    cookies = process_rules(config, host, {k: v for k, v in cookies.items()}, "cookie")
+    if json_body:
+        json_body = process_rules(config, host, json_body, "json_data")
+    return {
+        "headers": headers,
+        "params": params,
+        "cookies": cookies,
+        "json_body": json_body,
+    }
 
 
 def process_rewrite_rules(config, host, path):

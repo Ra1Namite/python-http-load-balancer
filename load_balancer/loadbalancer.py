@@ -2,8 +2,8 @@ import requests
 from flask import Flask, request
 
 from .utils import (get_healthy_server, healthcheck, load_configuration,
-                    process_firewall_rules_flag, process_rewrite_rules,
-                    process_rules, transform_backends_from_config)
+                    process_firewall_rules_flag, process_multiple_rules,
+                    process_rewrite_rules, transform_backends_from_config)
 
 loadbalancer = Flask(__name__)
 
@@ -26,53 +26,41 @@ def router(path="/"):
             healthy_server = get_healthy_server(entry["host"], updated_register)
             if not healthy_server:
                 return "No backend servers available.", 503
-            headers = process_rules(
-                config,
-                host_header,
-                {k: v for k, v in request.headers.items()},
-                "header",
-            )
-            params = process_rules(
-                config, host_header, {k: v for k, v in request.args.items()}, "param"
-            )
-            cookies = process_rules(
-                config,
-                host_header,
-                {k: v for k, v in request.cookies.items()},
-                "cookie",
+            try:
+                json_body = request.get_json(force=True)
+            except Exception:
+                json_body = None
+            result = process_multiple_rules(
+                config=config,
+                host=host_header,
+                headers=request.headers,
+                param_args=request.args,
+                cookies=request.cookies,
+                json_body=json_body,
             )
             rewrite_path = ""
             if path == "v1":
                 rewrite_path = process_rewrite_rules(config, host_header, path)
-
+            healthy_server.open_connections += 1
             if request.method == "GET":
-                healthy_server.open_connections += 1
                 response = requests.get(
                     f"http://{healthy_server.endpoint}/{rewrite_path}",
-                    headers=headers,
-                    params=params,
-                    cookies=cookies,
+                    headers=result["headers"],
+                    params=result["params"],
+                    cookies=result["cookies"],
                 )
-                healthy_server.open_connections -= 1
 
-                return response.content, response.status_code
-            if request.method == "POST":
-                json_body = process_rules(
-                    config,
-                    host_header,
-                    request.get_json(force=True),
-                    "json_data",
-                )
-                healthy_server.open_connections += 1
+            else:
                 response = requests.post(
                     f"http://{healthy_server.endpoint}",
-                    headers=headers,
-                    params=params,
-                    json=json_body,
-                    cookies=cookies,
+                    headers=result["headers"],
+                    params=result["params"],
+                    json=result["json_body"],
+                    cookies=result["cookies"],
                 )
-                healthy_server.open_connections -= 1
-                return response.content, response.status_code
+
+            healthy_server.open_connections -= 1
+            return response.content, response.status_code
     for entry in config["paths"]:
         if ("/" + path) == entry["path"]:
             healthy_server = get_healthy_server(entry["path"], updated_register)
