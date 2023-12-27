@@ -38,7 +38,16 @@ Install dependencies
   pip install -r requirements.txt
 ```
 
-Start the server
+Build test app's Docker image
+```bash
+  docker build -t server -f Dockerfile-test .
+```
+Start test app's servers
+
+```bash
+  docker compose up -d
+```
+Start the load balancer server
 
 ```bash
   FLASK_APP=src/loadbalancer.py flask run
